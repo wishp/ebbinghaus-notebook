@@ -31,3 +31,70 @@ button{touch-action:manipulation}button:focus-visible,select:focus-visible{outli
 
 /* Phone login preview. OTP actions remain disabled until an SMS provider is configured. */
 body.login-active{overflow:hidden}.login-active .app,.login-active .nav{display:none}.login-screen{display:none;position:fixed;inset:0;z-index:20;overflow-y:auto;padding:max(24px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 92% 8%,#dfeaff 0,transparent 36%),linear-gradient(165deg,#f7faff 0%,#edf3fc 100%)}.login-screen.active{display:grid;place-items:center}.login-shell{width:min(100%,430px);margin:auto}.login-brand{display:flex;align-items:center;gap:12px;margin:0 0 24px 4px;color:#263c60}.login-brand img{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 18px #3565b322}.login-brand strong,.login-brand span{display:block}.login-brand strong{font-size:17px;font-weight:750;letter-spacing:.2px}.login-brand span{font-size:11px;color:#8696af;margin-top:3px}.login-card{padding:27px 23px 19px;border:1px solid #e4ebf6;border-radius:24px;background:#ffffffeb;box-shadow:0 18px 48px #34558014;backdrop-filter:blur(12px)}.login-card h1{margin:0;color:#223856;font-size:24px;line-height:1.35;font-weight:750;letter-spacing:-.4px}.login-subtitle{margin:7px 0 24px;color:#8795aa;font-size:13px}.login-label{display:block;margin:0 0 8px;color:#536682;font-size:12px;font-weight:650}.code-label{margin-top:17px}.login-input-wrap{display:flex;align-items:center;height:50px;border:1px solid #e0e8f3;border-radius:12px;background:#f8faff;padding:0 13px;transition:border-color .15s,box-shadow .15s}.login-input-wrap:focus-within{border-color:#91acec;box-shadow:0 0 0 3px #4b76e812}.login-input-wrap input{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:15px;color:#273b5c}.login-input-wrap input::placeholder{color:#b1bdcd}.phone-wrap>span{padding-right:12px;margin-right:12px;border-right:1px solid #dce5f1;color:#526987;font-size:14px;font-weight:650}.code-wrap{padding-right:5px}.code-wrap button{flex:none;border:0;border-radius:9px;padding:9px 10px;background:#eaf0ff;color:#5076da;font-size:12px;font-weight:650}.login-submit{width:100%;height:48px;margin-top:22px;border:0;border-radius:12px;background:linear-gradient(120deg,#5d83eb,#4772df);box-shadow:0 8px 16px #547ce52a;color:white;font:inherit;font-size:15px;font-weight:700}.login-notice{display:flex;gap:9px;margin-top:18px;padding:12px;border:1px solid #e5ecf8;border-radius:12px;background:#f7f9fd}.notice-dot{flex:none;width:7px;height:7px;margin-top:5px;border-radius:50%;background:#93a7c9}.login-notice strong{font-size:11px;color:#657997}.login-notice p{margin:4px 0 0;font-size:11px;line-height:1.55;color:#8b9ab0}.guest-entry{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:15px;padding:10px;border:0;background:transparent;color:#5c7dcc;font:inherit;font-size:13px;font-weight:650}.guest-entry span{font-size:20px;line-height:14px}.login-foot{margin:18px 0 0;text-align:center;color:#a0adbf;font-size:11px}@media(min-width:700px){.login-screen{padding:40px}.login-card{padding:32px 30px 21px}.login-brand{margin-bottom:27px}}
+
+/* Readable mobile type scale: 24 title / 18 section / 16 body / 14 secondary. */
+html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-size:16px;line-height:1.5;--muted:#687b96}
+button,input,select,textarea{font-family:inherit}
+.page .title,#today .title{font-size:24px;line-height:1.35;font-weight:700;letter-spacing:0;margin-bottom:18px}
+.subtle,#capture .entry-help,.conversion-status,.setting-help{font-size:14px;line-height:1.65;color:#687b96}
+#today .progress-meta{font-size:14px;color:#62758f}
+#today .review-shortcuts button,.capture-tabs button{font-size:15px;line-height:1.45;min-height:44px;padding:10px 2px;color:#5e7292}
+#today .group-head{font-size:17px;font-weight:650;color:#334d70}
+#today .group-head small{font-size:13px;color:#6e8099}
+#today .row{padding:10px 0;column-gap:8px}
+#today .row-main{font-size:18px;line-height:1.5}
+#today .row-meta{font-size:13px;line-height:1.5;color:#72829a}
+#today .row-actions .btn{font-size:14px;min-height:40px;padding:8px 10px;color:#62758f}
+#today .row-actions .green{color:#237e58}#today .row-actions .red{color:#bc4c45}
+#today .finish{font-size:16px;min-height:44px;margin-top:8px}
+.entry-field{font-size:16px;color:#344b6b;font-weight:600}
+.entry-field small{font-size:13px;color:#72819a;float:none;display:block;margin-top:3px}
+.entry-field textarea{font-size:17px;line-height:1.65;margin-top:8px}
+.convert-btn{font-size:15px;min-height:44px;padding:10px 16px}
+.batch-sync-line span,.converter-note,.auto-link{font-size:13px;color:#6a7d99}
+#capture .save{font-size:17px;min-height:48px}.batch-preview-row{font-size:16px;line-height:1.5}
+.batch-preview-row small,.batch-preview-row>span{font-size:13px;color:#6c7f99}
+.candidate-choice{font-size:14px}.candidate-choice select{font-size:16px}
+#profile .profile-section-title{font-size:15px;line-height:1.5;font-weight:650;color:#536b8c;letter-spacing:0;margin:22px 2px 10px}
+#profile .profile-stat{min-height:116px;padding:14px 12px}
+#profile .profile-stat-head{font-size:16px;font-weight:650;gap:7px;margin-bottom:12px}
+#profile .profile-stat .profile-stat-values b{font-size:24px;line-height:1.2;font-weight:700}
+#profile .profile-stat .profile-stat-values small{font-size:13px;line-height:1.5;margin-top:4px;color:#fff}
+#profile .profile-stat .card-symbol{width:28px;height:28px;font-size:14px}
+#profile .profile-link,#profile .profile-setting{font-size:16px;min-height:56px;line-height:1.5;gap:12px;padding:10px 0}
+#profile .setting-button small,#profile .profile-setting small,#profile .profile-link small{font-size:14px;line-height:1.5;color:#687c99}
+#profile .profile-setting>span,#profile .profile-link>span{flex-shrink:0}
+#detail .detail-category-tabs button{font-size:14px;line-height:1.45;min-height:44px;padding:9px 2px;white-space:normal}
+#detail .filter{gap:4px}#detail .filter button{font-size:13px;min-height:40px;padding:8px;color:#647994}
+#detail .filter button.active{color:#3d68c5}
+#detail .subtle{font-size:14px;line-height:1.6}
+#detail .date-group-title{font-size:17px;line-height:1.5;color:#344e71;margin:22px 2px 10px}
+#detail .date-group-title small{font-size:13px;font-weight:400;color:#72839d;margin-left:auto}
+#detail .day-tabs:not(.detail-category-tabs) button{font-size:13px;min-height:38px;padding:7px 10px}
+#detail .detail-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.detail-copy{min-width:0;flex:1}
+#detail .detail-text{font-size:17px;line-height:1.5;font-weight:600;color:#304b73}
+#detail .detail-text.green{color:#237e58}#detail .detail-text.red{color:#bf5058}
+#detail .detail-prompt{font-size:15px;line-height:1.55;color:#526e98;margin-top:3px}
+#detail .detail-meta{display:block;width:fit-content;background:transparent;padding:0;margin-top:4px;border-radius:0;font-size:13px;line-height:1.5;color:#72839b;white-space:normal}
+.entry-actions{display:flex;flex-direction:column;gap:3px;flex:none}
+.entry-actions button{border:0;background:#edf3ff;border-radius:8px;color:#416dca;font-size:14px;padding:7px 12px;min-height:36px}
+.entry-actions .delete-entry{background:transparent;color:#bd535d}
+.sheet{max-height:88vh;max-height:88dvh;padding:24px 20px max(24px,env(safe-area-inset-bottom));overscroll-behavior:contain}
+.sheet h3{font-size:20px;line-height:1.4;font-weight:650;margin-bottom:12px}
+.sheet button{font-size:16px;min-height:46px}.sheet .sheet-primary{background:#4b76e8;color:#fff}
+.time-picker label{font-size:16px;color:#4e6586}.time-picker select{font-size:26px}
+.leak-options label{font-size:16px}.entry-editor label{display:block;font-size:15px;font-weight:600;color:#405978;margin-top:15px}
+.entry-editor textarea,.entry-editor select{display:block;width:100%;min-height:46px;border:1px solid #dce5f3;background:#f7faff;border-radius:10px;padding:10px 12px;font-size:17px;line-height:1.55;margin-top:7px;color:#283f5f}
+.entry-editor textarea{min-height:80px;max-height:160px;resize:vertical}
+.form-error{font-size:14px;color:#ba4653;margin:8px 0}.form-error:empty{display:none}
+.delete-preview{padding:14px;background:#f6f8fc;border-radius:12px;font-size:18px;font-weight:600;overflow-wrap:anywhere}
+.toast{font-size:15px;line-height:1.5;max-width:calc(100% - 32px);width:max-content;z-index:30}
+.toast button{border:0;color:#a9cdff;background:transparent;font:inherit;font-weight:650;padding:4px 8px}
+.history-head{font-size:18px}.history-head small{font-size:14px;color:#6b809c}.history-body{font-size:17px;line-height:1.8}
+.empty,#today .empty{font-size:16px;line-height:1.6;color:#6d809b}.empty strong,#today .empty strong{font-size:18px}
+.nav{height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}.nav button{font-size:14px;color:#6d7f99;line-height:1.4}.app{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+.login-brand span,.login-foot{font-size:13px;color:#6c7f99}.login-label{font-size:15px}.login-subtitle{font-size:15px;color:#6c7f99}.login-input-wrap input{font-size:17px}.code-wrap button{font-size:14px}.login-submit{font-size:17px}.login-notice strong,.login-notice p{font-size:13px;color:#687d9b}.guest-entry{font-size:16px;min-height:44px}
+@media(max-width:360px){.page{padding-left:14px;padding-right:14px}#profile .profile-stat-head{font-size:15px}#profile .profile-stat .profile-stat-values small{font-size:12px}#today .row-actions{gap:4px}#today .row-actions .btn{padding:8px}#detail .detail-category-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#today .row-main{font-size:17px}}
+@media(min-width:700px){.page .title,#today .title{font-size:26px}#profile .profile-stat{min-height:120px}#today .row-main{font-size:19px}}
