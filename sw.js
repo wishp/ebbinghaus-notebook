@@ -1,0 +1,6 @@
+const CACHE="ebbinghaus-20261026.1";
+const ASSETS=["./","index.html","manifest.json","icon.svg","layout.css","theme.css","capture.js","conversion.js","translation.js","updates.js","app-version.js","version.json","vendor/pinyin-pro/index.js","vendor/pinyin-pro/reverse-words.js","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png"];
+self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(async cache=>{for(const path of ASSETS){const response=await fetch(new Request(path,{cache:"reload"}));if(!response.ok)throw Error("Download failed: "+path);await cache.put(path,response)}})));
+self.addEventListener("message",event=>{if(event.data?.type==="SKIP_WAITING")self.skipWaiting()});
+self.addEventListener("activate",event=>event.waitUntil((async()=>{await Promise.all((await caches.keys()).filter(key=>key.startsWith("ebbinghaus-")&&key!==CACHE).map(key=>caches.delete(key)));await self.clients.claim()})()));
+self.addEventListener("fetch",event=>{const url=new URL(event.request.url);if(event.request.method!=="GET"||url.origin!==self.location.origin)return;if(url.pathname.endsWith("/version.json")||url.pathname.endsWith("/sw.js")){event.respondWith(fetch(event.request,{cache:"no-store"}));return}event.respondWith(caches.open(CACHE).then(async cache=>(await cache.match(event.request))||fetch(event.request)))});

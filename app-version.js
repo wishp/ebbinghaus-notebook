@@ -1,0 +1,1 @@
+const APP_RELEASE={version:"1.1.0",build:"20261026.1"};
