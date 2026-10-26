@@ -78,9 +78,10 @@ button,input,select,textarea{font-family:inherit}
 #detail .detail-text.green{color:#237e58}#detail .detail-text.red{color:#bf5058}
 #detail .detail-prompt{font-size:15px;line-height:1.55;color:#526e98;margin-top:3px}
 #detail .detail-meta{display:block;width:fit-content;background:transparent;padding:0;margin-top:4px;border-radius:0;font-size:13px;line-height:1.5;color:#72839b;white-space:normal}
-.entry-actions{display:flex;flex-direction:column;gap:3px;flex:none}
-.entry-actions button{border:0;background:#edf3ff;border-radius:8px;color:#416dca;font-size:14px;padding:7px 12px;min-height:36px}
-.entry-actions .delete-entry{background:transparent;color:#bd535d}
+.entry-actions{display:flex;flex-direction:column;gap:6px;flex:none}
+.entry-action{border:1px solid #cbdcff;background:#edf3ff;border-radius:8px;color:#416dca;font-size:14px;padding:7px 12px;min-height:36px;font-weight:600}
+.entry-action-delete{border-color:#f0cbd0;background:#fff3f4;color:#bd535d}
+.entry-locked{flex:none;color:#9aa8bb;font-size:13px;padding:8px 0}
 .sheet{max-height:88vh;max-height:88dvh;padding:24px 20px max(24px,env(safe-area-inset-bottom));overscroll-behavior:contain}
 .sheet h3{font-size:20px;line-height:1.4;font-weight:650;margin-bottom:12px}
 .sheet button{font-size:16px;min-height:46px}.sheet .sheet-primary{background:#4b76e8;color:#fff}
