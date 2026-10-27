@@ -71,6 +71,14 @@ button,input,select,textarea{font-family:inherit}
 #detail .subtle{font-size:14px;line-height:1.6}
 #detail .date-group-title{font-size:17px;line-height:1.5;color:#344e71;margin:22px 2px 10px}
 #detail .date-group-title small{font-size:13px;font-weight:400;color:#72839d;margin-left:auto}
+#detail .date-group-title{justify-content:space-between;gap:10px}
+#detail .date-group-title>span{display:flex;align-items:center;gap:10px;min-width:0}
+#detail .date-group-title>span small{white-space:nowrap}
+.date-actions{display:flex;align-items:center;gap:8px;flex:none}
+.date-action{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #d5e2f7;border-radius:10px;background:#edf3ff;color:#416dca;cursor:pointer}
+.date-action svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.date-action-delete{border-color:#f0d3d7;background:#fff3f4;color:#bd535d}
+.date-action:active{transform:scale(.96)}
 #detail .day-tabs:not(.detail-category-tabs) button{font-size:13px;min-height:38px;padding:7px 10px}
 #detail .detail-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
 .detail-copy{min-width:0;flex:1}
@@ -101,4 +109,14 @@ button,input,select,textarea{font-family:inherit}
 @media(min-width:700px){.page .title,#today .title{font-size:26px}#profile .profile-stat{min-height:120px}#today .row-main{font-size:19px}}
 .entry-page-heading{display:flex;align-items:center;gap:8px;margin-bottom:18px}.entry-page-heading .title{margin:0}.entry-page-heading .back{margin:0;flex:none;width:40px;height:40px}
 .entry-actions .entry-action{border:1px solid #cbdcff;background:#edf3ff;color:#416dca}.entry-actions .entry-action-delete{border-color:#f0cbd0;background:#fff3f4;color:#bd535d}
+.date-edit-groups{display:grid;gap:20px}
+.date-edit-category>h2{display:flex;align-items:center;justify-content:space-between;margin:0 2px 9px;font-size:17px;line-height:1.5;color:#3b557a}
+.date-edit-category>h2 small{font-size:13px;font-weight:500;color:#7486a0}
+.date-edit-row{margin:0 0 12px}
+.date-edit-row-title{margin:0 3px 6px;font-size:13px;color:#71839e;font-weight:600}
+.date-edit-row .entry-pair{padding:14px}
+.date-edit-row .entry-field textarea{min-height:62px;font-size:16px}
+.edit-sync-status{margin:6px 2px 0;font-size:13px;line-height:1.45;color:#7084a2}
+#capture #saveDateEdit{margin:22px 0 8px;position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:2;box-shadow:0 5px 18px #34547a20}
+.date-action:focus-visible{outline:2px solid #8eacf0;outline-offset:3px}
 .install-guide-brand{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:#f1f5ff;margin:16px 0}.install-guide-brand img{width:52px;height:52px;border-radius:13px}.install-guide-brand strong{display:block;font-size:17px}.install-guide-brand span{font-size:14px;color:#687b96}.install-guide h4{font-size:16px;margin:18px 0 8px}.install-guide ol{padding-left:24px;margin:0;font-size:15px;line-height:1.7}.install-guide li{margin-bottom:6px}

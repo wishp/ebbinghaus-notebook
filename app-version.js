@@ -1,1 +1,1 @@
-const APP_RELEASE={version:"1.5.1",build:"20261026.7"};
+const APP_RELEASE={version:"1.5.2",build:"20261027.2"};
