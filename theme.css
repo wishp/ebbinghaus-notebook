@@ -70,9 +70,9 @@ button,input,select,textarea{font-family:inherit}
 #detail .filter button.active{color:#3d68c5}
 #detail .subtle{font-size:14px;line-height:1.6}
 #detail .date-group-title{font-size:17px;line-height:1.5;color:#344e71;margin:22px 2px 10px}
-#detail .date-group-title small{font-size:13px;font-weight:400;color:#72839d;margin-left:auto}
-#detail .date-group-title{justify-content:space-between;gap:10px}
-#detail .date-group-title>span{display:flex;align-items:center;gap:10px;min-width:0}
+#detail .date-group-title small{font-size:13px;font-weight:400;color:#72839d;margin-left:0}
+#detail .date-group-title{justify-content:flex-start;gap:10px;margin-left:0;margin-right:0}
+#detail .date-group-title>span{display:flex;align-items:center;gap:10px;min-width:0;flex:1;text-align:left}
 #detail .date-group-title>span small{white-space:nowrap}
 .date-actions{display:flex;align-items:center;gap:8px;flex:none}
 .date-action{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #d5e2f7;border-radius:10px;background:#edf3ff;color:#416dca;cursor:pointer}

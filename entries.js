@@ -19,7 +19,7 @@ function renderDetail(){
  }).join('');
  const filters=[['','全部'],['复习中','复习中'],['顽固','顽固'],['已掌握','已掌握']].map(([value,label])=>`<button type="button" class="${detailStatus===value?'active':''}" data-detail-status="${value}">${label} (${state.items.filter(x=>(!detailCategory||x.category===detailCategory)&&(!value||(value==='顽固'?x.wrong_count>=3:x.status===value))).length})</button>`).join('');
  const catFilters=`<div class="day-tabs detail-category-tabs"><button type="button" class="${!detailCategory?'active':''}" data-detail-cat="">全部分类</button>${cats.map(c=>`<button type="button" class="${detailCategory===c?'active':''}" data-detail-cat="${c}">${c.replace('-','')}</button>`).join('')}</div>`;
- subPage('录入信息',`${catFilters}<div class="filter">${filters}</div><p class="subtle">当天录入的全部分类可一起编辑或删除</p>${grouped||'<div class="empty">没有符合条件的录入信息</div>'}`);
+ subPage('录入信息详情',`${catFilters}<div class="filter">${filters}</div><p class="subtle">当天录入的全部分类可一起编辑或删除</p>${grouped||'<div class="empty">没有符合条件的录入信息</div>'}`);
  const page=document.getElementById('detail');
  page.querySelectorAll('[data-detail-cat]').forEach(b=>b.onclick=()=>{detailCategory=b.dataset.detailCat;renderDetail()});
  page.querySelectorAll('[data-detail-status]').forEach(b=>b.onclick=()=>{detailStatus=b.dataset.detailStatus;renderDetail()});
