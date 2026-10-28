@@ -1,5 +1,6 @@
 const detailDayCategories = {};
 let entryEditDraft = null;
+let entryEditOriginal = null;
 const dateActionIcons = {
  edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>',
  delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5m4-5v5"/></svg>'
@@ -30,7 +31,9 @@ function renderDetail(){
 function editDate(date){
  if(date!==today()){toast('只有今天录入的信息可以编辑');return}
  const items=state.items.filter(x=>x.created_at===date);if(!items.length)return;
- editingEntryDate=date;entryEditDraft=new Map(items.map(x=>[String(x.id),{question:x.prompt||x.text||'',answer:x.text||'',sourceField:'answer'}]));
+ editingEntryDate=date;entryEditOriginal=JSON.stringify(items);
+ entryEditDraft=new Map(cats.map(category=>{const rows=items.filter(x=>x.category===category);return [category,{question:rows.map(x=>x.prompt||x.text||'').join('、'),answer:rows.map(x=>x.text||'').join('、'),sourceField:'answer'}]}));
+ captureCat=cats.find(category=>items.some(x=>x.category===category))||cats[0];
  current='capture';render();window.scrollTo({top:0,behavior:'instant'});
 }
 
@@ -64,43 +67,38 @@ function showUndoDate(record){
 
 function cancelDateEdit(){editingEntryDate=null;entryEditDraft=null;current='detail';render()}
 
+function dateEditReady(){
+ return !!entryEditDraft&&cats.every(category=>{
+  const draft=entryEditDraft.get(category);
+  if(!draft.question.trim()&&!draft.answer.trim())return true;
+  const q=batchParts(draft.question),a=batchParts(draft.answer);
+  return q.length===a.length&&q.every(Boolean)&&a.every(Boolean);
+ });
+}
 function renderDateEditCapture(){
+ if(editingEntryDate!==today()||!entryEditDraft){cancelDateEdit();toast('只有今天录入的信息可以编辑');return}
+ renderBatchCapture({dateEdit:true});
+}
+function saveDateEdit(){
  const date=editingEntryDate,items=state.items.filter(x=>x.created_at===date);
- if(date!==today()||!items.length){cancelDateEdit();toast('只有今天录入的信息可以编辑');return}
- const sections=cats.map(category=>{
-  const rows=items.filter(x=>x.category===category);if(!rows.length)return'';
-  return `<section class="date-edit-category"><h2>${category.replace('-','')}<small>${rows.length} 条</small></h2>${rows.map((item,index)=>{
-   const id=String(item.id),draft=entryEditDraft.get(id);
-   return `<article class="date-edit-row" data-edit-row="${id}"><div class="date-edit-row-title">第 ${index+1} 条</div><div class="entry-pair"><label class="entry-field">题目 <small>首页展示这些题目</small><textarea rows="2" data-edit-question="${id}">${esc(draft.question)}</textarea></label><div class="batch-sync-line"><button type="button" class="convert-btn" data-edit-sync="${id}">同步转化</button><span data-sync-direction="${id}">${draft.sourceField==='answer'?'答案 → 题目':'题目 → 答案'}</span></div><label class="entry-field">答案 <small>学习时需要写出的内容</small><textarea rows="2" data-edit-answer="${id}">${esc(draft.answer)}</textarea></label><p class="edit-sync-status" data-sync-status="${id}"></p></div></article>`;
-  }).join('')}</section>`;
- }).join('');
- const page=document.getElementById('capture');
- page.innerHTML=`<div class="entry-page-heading"><button type="button" class="back" id="cancelDateEdit" aria-label="返回录入信息">‹</button><h1 class="title">编辑当天录入信息</h1></div><p class="subtle entry-help">${date.replaceAll('-','.')} · 共 ${items.length} 条，所有分类一起编辑。同步转化和保存都只影响当天内容。</p><div class="date-edit-groups">${sections}</div><button type="button" class="save enabled" id="saveDateEdit">保存全部修改</button>`;
- page.querySelector('#cancelDateEdit').onclick=cancelDateEdit;
- page.querySelectorAll('[data-edit-question],[data-edit-answer]').forEach(field=>field.oninput=()=>{
-  const id=field.dataset.editQuestion||field.dataset.editAnswer,draft=entryEditDraft.get(id);draft[field.hasAttribute('data-edit-question')?'question':'answer']=field.value;draft.sourceField=field.hasAttribute('data-edit-answer')?'answer':'question';
-  page.querySelector(`[data-sync-direction="${id}"]`).textContent=draft.sourceField==='answer'?'答案 → 题目':'题目 → 答案';page.querySelector(`[data-sync-status="${id}"]`).textContent='有修改未保存';
- });
- page.querySelectorAll('[data-edit-sync]').forEach(button=>button.onclick=async()=>{
-  if(editingEntryDate!==today()){cancelDateEdit();toast('已过录入当天，不能同步修改');return}
-  const id=button.dataset.editSync,draft=entryEditDraft.get(id),item=items.find(x=>String(x.id)===id);if(!item)return;
-  const source=draft.sourceField,target=source==='answer'?'question':'answer',value=draft[source].trim();if(!value)return;
-  button.disabled=true;page.querySelector(`[data-sync-status="${id}"]`).textContent='正在同步转化…';
-  try{
-   const results=[];for(const part of batchParts(value))results.push(part?await convertCaptureValueFor(item.category,part):{value:''});
-   if(editingEntryDate!==today()||!page.isConnected)return;
-   draft[target]=results.map(x=>x.value||'').join('、');page.querySelector(`[data-edit-${target}="${id}"]`).value=draft[target];
-   page.querySelector(`[data-sync-status="${id}"]`).textContent=results.some(x=>x.unknown)?'部分内容未能自动转化，请检查后手动补充。':'已生成，可继续手动调整。';
-  }catch(error){page.querySelector(`[data-sync-status="${id}"]`).textContent='转化失败，请手动填写。'}finally{if(button.isConnected)button.disabled=false}
- });
- page.querySelector('#saveDateEdit').onclick=()=>{
-  const currentItems=state.items.filter(x=>x.created_at===date);
-  if(date!==today()||currentItems.length!==items.length||currentItems.some(x=>!entryEditDraft.has(String(x.id)))){cancelDateEdit();toast('已过录入当天或信息已变化，未保存修改');return}
-  const incomplete=currentItems.find(x=>!entryEditDraft.get(String(x.id)).question.trim()||!entryEditDraft.get(String(x.id)).answer.trim());
-  if(incomplete){const field=page.querySelector(`[data-edit-question="${String(incomplete.id)}"]`);field?.focus();toast('请补全当天所有内容的题目和答案');return}
-  for(const item of currentItems){const draft=entryEditDraft.get(String(item.id));item.prompt=draft.question.trim();item.text=draft.answer.trim();item.updated_at=new Date().toISOString()}
-  save();editingEntryDate=null;entryEditDraft=null;current='detail';render();toast('当天全部修改已保存');
- };
+ if(date!==today()||JSON.stringify(items)!==entryEditOriginal){cancelDateEdit();toast('日期或信息已变化，请重新编辑');return}
+ if(!dateEditReady()){toast('请检查各分类的题目、答案数量，并补全空项');return}
+ const updated=[],removedIds=new Set(items.map(x=>x.id)),now=new Date().toISOString();
+ for(const category of cats){
+  const draft=entryEditDraft.get(category);
+  if(!draft.question.trim()&&!draft.answer.trim())continue;
+  const questions=batchParts(draft.question),answers=batchParts(draft.answer),original=items.filter(x=>x.category===category),used=new Set();
+  const matches=answers.map((answer,i)=>{const match=original.find(x=>!used.has(x.id)&&x.text===answer&&x.prompt===questions[i]);if(match)used.add(match.id);return match});
+  answers.forEach((answer,i)=>{
+   const item=matches[i]||original.find(x=>!used.has(x.id));
+   if(item){used.add(item.id);removedIds.delete(item.id)}
+   updated.push(item?{...item,text:answer,prompt:questions[i],updated_at:now}:{id:Date.now()+Math.random(),category,text:answer,prompt:questions[i],created_at:date,stage:0,wrong_count:0,status:'复习中',next_review_at:addDays(date,1),updated_at:now});
+  });
+ }
+ const firstIndex=state.items.findIndex(x=>x.created_at===date);
+ state.items=state.items.filter(x=>x.created_at!==date);state.items.splice(firstIndex,0,...updated);
+ state.logs=state.logs.filter(x=>!removedIds.has(x.item_id));for(const id of removedIds)delete marked[id];
+ save();editingEntryDate=null;entryEditDraft=null;entryEditOriginal=null;current='detail';render();toast('当天全部修改已保存');
 }
 
 function showInstallGuide(){
