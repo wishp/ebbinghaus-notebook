@@ -1,4 +1,4 @@
-const CACHE="ebbinghaus-20261030.1";
+const CACHE="ebbinghaus-20261030.2";
 const ASSETS=["./","index.html","manifest.json","icon.svg","layout.css","theme.css","capture.js","conversion.js","translation.js","updates.js","entries.js","app-version.js","version.json","vendor/pinyin-pro/index.js","vendor/pinyin-pro/reverse-words.js","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(async cache=>{for(const path of ASSETS){const response=await fetch(new Request(path,{cache:"reload"}));if(!response.ok)throw Error("Download failed: "+path);await cache.put(path,response)}})));
 self.addEventListener("message",event=>{if(event.data?.type==="SKIP_WAITING")self.skipWaiting()});
