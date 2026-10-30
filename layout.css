@@ -4,6 +4,22 @@ html,body{max-width:100%;overflow-x:hidden}
 .tabs button,.filter button,.day-tabs button{min-width:0;overflow-wrap:anywhere}
 .row-main span,.detail-text,.history-body,.chip{overflow-wrap:anywhere;min-width:0}
 .sheet{overflow-y:auto;overflow-x:hidden}
+.date-group-title{justify-content:space-between;gap:8px;margin:18px 0 8px}
+#detail .date-group-title:before{display:none}
+.date-toggle{display:flex;align-items:center;gap:9px;min-width:0;padding:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:750;text-align:left;cursor:pointer}
+.date-toggle>span{display:flex;align-items:baseline;gap:9px}
+.date-toggle small{font-size:12px;font-weight:500;color:var(--muted)}
+.date-chevron{width:17px;height:17px;fill:none;stroke:#8393aa;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}
+.date-chevron.open{transform:rotate(180deg)}
+.date-group-title .date-actions{margin-left:auto}
+.entry-day-content[hidden]{display:none}
+.profile-links{display:flex;flex-direction:column}
+#profile .profile-link[data-go="detail"]{order:-1}
+#profile .card-symbol{display:none!important}
+#today .row{cursor:pointer;border-radius:9px;transition:background-color .15s ease}
+#today .row.study-focused{background:#e8f1ff}
+#today .row-main .sound{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:5px}
+#today .row-main .sound svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .auto-link{text-align:center;color:#8298ba;font-size:11px;padding:12px 0}
 #detail .detail-category-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;background:#e5edf8;padding:4px;border-radius:12px;margin:0 0 12px}
 #detail .detail-category-tabs button{border-radius:9px;background:transparent;color:#637792;font-size:12px;padding:10px 2px;white-space:normal;line-height:1.4}
