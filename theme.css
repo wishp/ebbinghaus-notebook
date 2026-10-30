@@ -108,6 +108,11 @@ button,input,select,textarea{font-family:inherit}
 @media(max-width:360px){.page{padding-left:14px;padding-right:14px}#profile .profile-stat-head{font-size:15px}#profile .profile-stat .profile-stat-values small{font-size:12px}#today .row-actions{gap:4px}#today .row-actions .btn{padding:8px}#detail .detail-category-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#today .row-main{font-size:17px}}
 @media(min-width:700px){.page .title,#today .title{font-size:26px}#profile .profile-stat{min-height:120px}#today .row-main{font-size:19px}}
 #today .row{padding:10px 12px}
+.capture-batch-summary{margin:18px 0 10px}
+.capture-batch-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:16px;color:#405978}
+.capture-batch-total strong{font-size:18px;font-weight:650;color:#527bda}
+.capture-batch-counts{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.capture-batch-counts span{padding:6px 9px;border-radius:7px;background:#eaf1fc;color:#57749e;font-size:13px;line-height:1.5}
 #today .row.study-focused{background:#e8f1ff}
 @media(max-width:360px){#today .row{padding-left:8px;padding-right:8px}}
 .entry-page-heading{display:flex;align-items:center;gap:8px;margin-bottom:18px}.entry-page-heading .title{margin:0}.entry-page-heading .back{margin:0;flex:none;width:40px;height:40px}

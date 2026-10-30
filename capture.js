@@ -9,15 +9,27 @@ async function convertCaptureValueFor(category,value){
  if(/[㐀-鿿]/.test(value))return translateChineseEnglish(value);
  const translated=translateEnglish(value);return translated.unknown?{value,unknown:true,untranslated:true}:translated;
 }
-function renderBatchCapture(options={}){
- const dateEdit=!!options.dateEdit;
+function initializeBatchDrafts(){
  state.batchDrafts=state.batchDrafts||{};
- if(!state.batchDrafts[captureCat]){
-  const previous=state.entryDrafts?.[captureCat],old=parseEntries(state.drafts[captureCat]||"");
-  state.batchDrafts[captureCat]=previous&&!previous.legacy&&(previous.answer||previous.question)
+ for(const category of cats){
+  if(state.batchDrafts[category])continue;
+  const previous=state.entryDrafts?.[category],old=parseEntries(state.drafts[category]||"");
+  state.batchDrafts[category]=previous&&!previous.legacy&&(previous.answer||previous.question)
    ?{answer:previous.answer,question:previous.question}
    :{answer:old.map(x=>x.answer).join("、"),question:old.map(x=>x.prompt).join("、")};
  }
+}
+function captureBatchSummary(){
+ return cats.map(category=>{
+  const draft=state.batchDrafts[category]||{},answer=draft.answer||"",question=draft.question||"";
+  const a=answer.trim()?batchParts(answer):[],q=question.trim()?batchParts(question):[];
+  const count=Math.max(a.length,q.length),ready=count>0&&a.length===q.length&&a.every(Boolean)&&q.every(Boolean);
+  return {category,a,q,count,ready};
+ });
+}
+function renderBatchCapture(options={}){
+ const dateEdit=!!options.dateEdit;
+ initializeBatchDrafts();
  const draft=dateEdit?entryEditDraft.get(captureCat):state.batchDrafts[captureCat];
  const capturePage=document.getElementById("capture");
  let syncVersion=0;
@@ -26,6 +38,7 @@ function renderBatchCapture(options={}){
  page.innerHTML=`${dateEdit?'<div class="entry-page-heading"><button type="button" class="back" id="cancelDateEdit" aria-label="返回录入信息">‹</button><h1 class="title">编辑当天录入信息</h1></div><p class="subtle">'+editingEntryDate.replaceAll('-','.')+' · 切换分类批量修改，最后统一保存</p>':'<h1 class="title">错题录入</h1>' }<div class="tabs capture-tabs">${cats.map(c=>`<button type="button" class="${c===captureCat?"active":""}" data-cat="${c}">${c.replace("-","")}</button>`).join("")}</div><p class="subtle entry-help">任意一栏输入内容，用顿号分隔。同步转化以最后编辑的一栏为准，生成另一栏。</p><div class="entry-pair"><label class="entry-field">题目 <small>首页展示这些题目</small><textarea id="questionInput" rows="3" placeholder="多个题目用顿号分隔">${esc(draft.question)}</textarea></label><div class="batch-sync-line"><button type="button" class="convert-btn" id="syncBatch">同步转化</button><span id="syncDirection"></span></div><label class="entry-field">答案 <small>多个内容用顿号分隔</small><textarea id="answerInput" rows="3" placeholder="例如：朋友、学习">${esc(draft.answer)}</textarea></label></div><p id="conversionStatus" class="conversion-status" role="status">常用词优先本地转化，可手动修改；英语未收录的内容将提交至 MyMemory 联网翻译。</p><div id="candidatePanel"></div><div id="batchPreview" class="batch-preview"></div><button type="button" class="save" id="saveEntry">保存本批内容</button>`;
  const fields={answer:document.getElementById("answerInput"),question:document.getElementById("questionInput")};
  const button=document.getElementById("saveEntry"),status=document.getElementById("conversionStatus");
+ if(!dateEdit)button.insertAdjacentHTML("beforebegin",'<div class="capture-batch-summary" id="captureBatchSummary" aria-live="polite"></div>');
  const pairs=()=>{
   const a=batchParts(fields.answer.value),q=batchParts(fields.question.value);
   return {a,q,ready:!!fields.answer.value.trim()&&a.length===q.length&&a.every(Boolean)&&q.every(Boolean)};
@@ -37,10 +50,12 @@ function renderBatchCapture(options={}){
  const refresh=()=>{
   resolveSource();
   const {a,q,ready}=pairs();
-  const canSave=dateEdit?dateEditReady():ready;
+  const batches=dateEdit?[]:captureBatchSummary(),total=batches.reduce((sum,batch)=>sum+batch.count,0);
+  const canSave=dateEdit?dateEditReady():total>0;
   button.disabled=!canSave;
   button.classList.toggle("enabled",canSave);
-  button.textContent=dateEdit?"保存全部修改":ready?`保存 ${a.length} 条内容`:"保存本批内容";
+  button.textContent=dateEdit?"保存全部修改":`保存全部 ${total} 条内容`;
+  if(!dateEdit)document.getElementById("captureBatchSummary").innerHTML=`<div class="capture-batch-total"><span>本次待保存</span><strong>共 ${total} 条</strong></div><div class="capture-batch-counts">${batches.map(batch=>`<span>${batch.category.replace("-","")} ${batch.count} 条${batch.count&&!batch.ready?' · 待补全':''}</span>`).join("")}</div>`;
   document.getElementById("syncBatch").disabled=!fields.answer.value.trim()&&!fields.question.value.trim();
   document.getElementById("syncDirection").textContent=sourceField==="answer"?"答案 → 题目":"题目 → 答案";
   document.getElementById("batchPreview").innerHTML=(fields.answer.value.trim()||fields.question.value.trim())
@@ -82,11 +97,13 @@ function renderBatchCapture(options={}){
  });
  button.onclick=()=>{
   if(dateEdit){saveDateEdit();return}
-  const {a,q,ready}=pairs();
-  if(!ready)return;
-  a.forEach((value,i)=>state.items.push({id:Date.now()+Math.random(),category:captureCat,text:value,prompt:q[i],created_at:today(),stage:0,wrong_count:0,status:"复习中",next_review_at:addDays(today(),1)}));
-  delete state.batchDrafts[captureCat];delete state.entryDrafts?.[captureCat];state.drafts[captureCat]="";
-  save();renderBatchCapture();toast("已保存"+a.length+"条");document.getElementById("answerInput").focus();
+  const batches=captureBatchSummary().filter(batch=>batch.count),invalid=batches.find(batch=>!batch.ready);
+  if(!batches.length)return;
+  if(invalid){captureCat=invalid.category;renderBatchCapture();const message=invalid.category.replace("-","")+"的题目和答案数量不一致或存在空项，请补全后保存全部内容";document.getElementById("conversionStatus").textContent=message;toast(message);return}
+  const date=today(),items=batches.flatMap(batch=>batch.a.map((value,i)=>({id:Date.now()+Math.random(),category:batch.category,text:value,prompt:batch.q[i],created_at:date,stage:0,wrong_count:0,status:"复习中",next_review_at:addDays(date,1)})));
+  state.items.push(...items);
+  for(const batch of batches){delete state.batchDrafts[batch.category];delete state.entryDrafts?.[batch.category];state.drafts[batch.category]="";}
+  save();renderBatchCapture();toast("已保存全部 "+items.length+" 条内容");document.getElementById("answerInput").focus();
  };
  if(dateEdit)document.getElementById("cancelDateEdit").onclick=cancelDateEdit;
  refresh();
