@@ -100,10 +100,7 @@ function renderBatchCapture(options={}){
   const batches=captureBatchSummary().filter(batch=>batch.count),invalid=batches.find(batch=>!batch.ready);
   if(!batches.length)return;
   if(invalid){captureCat=invalid.category;renderBatchCapture();const message=invalid.category.replace("-","")+"的题目和答案数量不一致或存在空项，请补全后保存全部内容";document.getElementById("conversionStatus").textContent=message;toast(message);return}
-  const date=today(),items=batches.flatMap(batch=>batch.a.map((value,i)=>({id:Date.now()+Math.random(),category:batch.category,text:value,prompt:batch.q[i],created_at:date,stage:0,wrong_count:0,status:"复习中",next_review_at:addDays(date,1)})));
-  state.items.push(...items);
-  for(const batch of batches){delete state.batchDrafts[batch.category];delete state.entryDrafts?.[batch.category];state.drafts[batch.category]="";}
-  save();renderBatchCapture();toast("已保存全部 "+items.length+" 条内容");document.getElementById("answerInput").focus();
+  beginCaptureSave(batches);
  };
  if(dateEdit)document.getElementById("cancelDateEdit").onclick=cancelDateEdit;
  refresh();
