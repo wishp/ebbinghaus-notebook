@@ -29,7 +29,7 @@ function entries(n){return Array.from({length:n},(_,i)=>({text:'词'+i,category:
 test('defaults and strict threshold: 20 direct, 21 preview without writes',()=>{
  const small=fixture();assert.equal(small.context.reviewScheduleSettings().threshold,20);
  small.context.beginCaptureSave(drafts(small,20));assert.equal(small.context.state.items.length,20);assert.equal(small.pending(),null);
- assert(small.context.state.items.every(item=>item.created_at==='2026-10-30'&&item.first_review_at==='2026-10-31'&&item.next_review_at==='2026-10-31'));
+ assert(small.context.state.items.every(item=>item.created_at==='2026-10-30'&&item.first_review_at>='2026-10-31'&&item.next_review_at===item.first_review_at));
  const large=fixture();large.context.beginCaptureSave(drafts(large,21));assert.equal(large.context.state.items.length,0);assert(large.pending());assert.equal(large.saves(),0);
  large.get('backToCapture').onclick();assert.equal(large.pending(),null);assert.equal(large.context.captureBatchSummary()[0].count,21);
 });
@@ -53,7 +53,7 @@ test('overdue and mastered forecasts, stage boundaries, year rollover',()=>{
 });
 
 test('preview validates inputs, blocks insufficient capacity and persists chosen dates across categories',()=>{
- const f=fixture(),c=f.context;drafts(f,21);c.state.batchDrafts[c.cats[2]]={question:'苹果',answer:'apple'};
+ const f=fixture(),c=f.context;c.state.settings.dailyReviewLimit=50;drafts(f,21);c.state.batchDrafts[c.cats[2]]={question:'苹果',answer:'apple'};
  c.beginCaptureSave(c.captureBatchSummary().filter(batch=>batch.count));
  f.get('reviewScheduleDays').value='1';f.get('reviewScheduleCap').value='1';f.get('reviewScheduleDays').oninput();assert(f.get('confirmReviewSchedule').disabled);
  f.get('confirmReviewSchedule').onclick();assert.equal(c.state.items.length,0);
@@ -77,4 +77,32 @@ test('settings validate and store threshold zero as always arrange',()=>{
  const f=fixture();f.context.editReviewScheduleSettings();f.get('scheduleThreshold').value='';f.get('saveScheduleSettings').onclick();assert.equal(f.saves(),0);
  f.get('scheduleThreshold').value='0';f.get('saveScheduleSettings').onclick();assert.equal(f.context.state.settings.scheduleThreshold,0);assert.equal(f.saves(),1);
  f.context.beginCaptureSave(drafts(f,1));assert(f.pending());assert.equal(f.context.state.items.length,0);
+});
+
+test('daily cap counts existing plus first plus follow-ups, preserving existing dates',()=>{
+ const {context:c}=fixture(),items=Array.from({length:15},()=>({status:'复习中',stage:0,next_review_at:'2026-10-31'})),snapshot=JSON.stringify(items);
+ const plan=c.buildReviewSchedule(items,entries(25),'2026-10-31',30,50,20);
+ assert.equal(plan.remaining,0);assert(plan.days.every(day=>day.total<=20));assert(plan.days[0].first<=5);assert.equal(JSON.stringify(items),snapshot);
+ // Reforecast all saved entries to check dates beyond the first review window, too.
+ const combined=items.concat(plan.startDates.map(day=>({status:'复习中',stage:0,next_review_at:day})));
+ const forecast=c.buildReviewSchedule(combined,[],'2026-10-31',30,50,20);assert(forecast.days.every(day=>day.total<=20));
+});
+
+test('all 5-step daily limits are accepted; automatic extension respects daily quota',()=>{
+ const {context:c}=fixture();for(const limit of [5,10,15,20,25,30,35,40,45,50]){c.state.settings.dailyReviewLimit=limit;assert.equal(c.reviewScheduleSettings().dailyLimit,limit)}
+ c.state.settings.dailyReviewLimit=17;assert.equal(c.reviewScheduleSettings().dailyLimit,20);
+ const plan=c.autoReviewSchedule([],entries(48),'2026-10-31',{days:7,cap:50,dailyLimit:5});assert.equal(plan.remaining,0);assert(plan.days.length>7);assert(plan.days.every(day=>day.total<=5));
+});
+
+test('small successive batches also account for saved workload; no auto-moving existing items',()=>{
+ const f=fixture(),c=f.context;c.state.settings.dailyReviewLimit=5;
+ c.state.items=Array.from({length:7},(_,i)=>({id:i,status:'复习中',stage:0,next_review_at:'2026-10-31'}));
+ c.beginCaptureSave(drafts(f,3));assert.equal(f.pending(),null);assert.equal(c.state.items.length,10);assert(c.state.items.slice(0,7).every(item=>item.next_review_at==='2026-10-31'));assert(c.state.items.slice(7).every(item=>item.next_review_at>'2026-10-31'));
+ const first=JSON.stringify(c.state.items);c.beginCaptureSave(drafts(f,3));assert.equal(c.state.items.length,13);assert.equal(JSON.stringify(c.state.items.slice(0,10)),first);
+});
+
+test('hard daily capacity blocks saving when no available dates and retains drafts',()=>{
+ const f=fixture(),c=f.context;c.state.settings.dailyReviewLimit=5;c.state.settings.scheduleThreshold=100;
+ c.state.items=Array.from({length:30},(_,day)=>Array.from({length:5},()=>({status:'复习中',stage:5,next_review_at:c.addDays('2026-10-31',day)}))).flat();
+ c.beginCaptureSave(drafts(f,1));assert(f.pending());assert.equal(f.pending().days,365);assert(f.get('confirmReviewSchedule').disabled);f.get('confirmReviewSchedule').onclick();assert.equal(c.state.items.length,150);assert.equal(c.captureBatchSummary()[0].count,1);
 });
