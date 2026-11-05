@@ -62,6 +62,31 @@ function renderBatchCapture(options={}){
    ?Array.from({length:Math.max(a.length,q.length)},(_,i)=>`<div class="batch-preview-row"><span>${i+1}</span><div><small>题目</small>${q[i]?esc(q[i]):"<em>待补充题目</em>"}</div><div><small>答案</small>${a[i]?esc(a[i]):"<em>待补充答案</em>"}</div></div>`).join("")
    :"";
  };
+ const renderPinyinToneControls=(results,sourceParts,target,targetField)=>{
+  const toneParts=results.map(result=>result.value||""),tonePattern=/[a-züvāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ]+/gi;
+  const rows=toneParts.map((phrase,index)=>{
+   const source=sourceParts[index]||"",chars=Array.from(source).filter(char=>/[\u3400-\u9fff]/.test(char));
+   if(!chars.length)return "";
+   const syllables=[...phrase.matchAll(tonePattern)];let charIndex=0;
+   const controls=syllables.map(match=>{const character=chars[charIndex++];if(!character)return `<span class="tone-syllable">${esc(match[0])}</span>`;return `<button type="button" class="tone-syllable" data-tone-row="${index}" data-tone-start="${match.index}" data-tone-end="${match.index+match[0].length}" data-tone-char="${esc(character)}" aria-label="${esc(character)}，${esc(match[0])}，更改声调">${esc(match[0])}</button>`}).join(" ");
+   return controls?`<div class="tone-word"><small>${esc(source)}</small><span>${controls}</span></div>`:"";
+  }).join("");
+  const panel=document.getElementById("candidatePanel");
+  panel.querySelector(".tone-correction")?.remove();
+  if(!rows)return;
+  panel.insertAdjacentHTML("beforeend",`<section class="tone-correction"><div class="tone-correction-title">拼音声调 <small>点击音节快速调整</small></div>${rows}</section>`);
+  panel.querySelectorAll("[data-tone-row]").forEach(control=>control.onclick=()=>{
+   const row=+control.dataset.toneRow,start=+control.dataset.toneStart,end=+control.dataset.toneEnd,character=control.dataset.toneChar,currentSyllable=toneParts[row].slice(start,end);
+   const readings=((pinyinPro.polyphonic(character,{type:"array"})||[])[0]||[]).filter(value=>value&&value!==character);
+   const toneButtons=pinyinToneChoices(currentSyllable).map(choice=>`<button type="button" class="tone-option ${choice.selected?"selected":""}" data-tone-value="${esc(choice.value)}"><span>${choice.value}</span><small>${["","一声","二声","三声","四声","轻声"][choice.tone]}</small></button>`).join("");
+   const readingButtons=readings.length>1?`<div class="tone-reading-title">「${esc(character)}」的其他读音</div><div class="tone-options">${readings.map(reading=>`<button type="button" class="tone-option ${reading===currentSyllable?"selected":""}" data-tone-value="${esc(reading)}"><span>${esc(reading)}</span><small>读音候选</small></button>`).join("")}</div>`:"";
+   openSheet(`<h3>调整「${esc(character)}」的读音</h3><p class="setting-help">点选声调即可替换拼音。</p><div class="tone-options">${toneButtons}</div>${readingButtons}<button id="cancelTonePicker">完成</button>`);
+   document.querySelectorAll("[data-tone-value]").forEach(option=>option.onclick=()=>{
+    toneParts[row]=toneParts[row].slice(0,start)+option.dataset.toneValue+toneParts[row].slice(end);target.value=toneParts.join("、");draft[targetField]=target.value;if(!dateEdit)save();closeSheet();refresh();renderPinyinToneControls(toneParts.map(value=>({value})),sourceParts,target,targetField);
+   });
+   document.getElementById("cancelTonePicker").onclick=closeSheet;
+  });
+ };
  Object.keys(fields).forEach(field=>{
   fields[field].oninput=()=>{
    syncVersion++;draft[field]=fields[field].value;sourceField=field;draft.sourceField=field;
@@ -80,10 +105,11 @@ function renderBatchCapture(options={}){
   if(version!==syncVersion||captureCat!==category||current!=="capture"||!capturePage.contains(fields.answer)||document.getElementById("answerInput")!==fields.answer)return;
   target.value=results.map(x=>x.value||"").join("、");
   draft[targetField]=target.value;draft[sourceField]=source.value;draft.sourceField=sourceField;if(!dateEdit)save();
-  status.textContent=results.some(x=>x.untranslated)?"部分内容暂未译出，已保留原文，请手动调整。":results.some(x=>x.unknown)?"有歧义的拼音请选择候选词，未识别的内容请在对应空项补充。":"已按常用译法同步并覆盖原内容，可直接修改后保存。";
+  status.textContent=category.startsWith("语文")&&values.some(value=>/[\u3400-\u9fff]/.test(value))?"拼音已生成，可点击下方音节选择声调；多音字可切换读音。":results.some(x=>x.untranslated)?"部分内容暂未译出，已保留原文，请手动调整。":results.some(x=>x.unknown)?"有歧义的拼音请选择候选词，未识别的内容请在对应空项补充。":"已按常用译法同步并覆盖原内容，可直接修改后保存。";
   refresh();
   const panel=document.getElementById("candidatePanel");
   panel.innerHTML=results.map((x,i)=>x.candidates?.length>1?`<label class="candidate-choice">第${i+1}项「${esc(values[i])}」<select data-choice="${i}"><option value="">请选择对应词语</option>${x.candidates.map((word,j)=>`<option value="${j}">${esc(word)}</option>`).join("")}</select></label>`:"").join("");
+  if(category.startsWith("语文")&&values.some(value=>/[\u3400-\u9fff]/.test(value)))renderPinyinToneControls(results,values,target,targetField);
   panel.querySelectorAll("[data-choice]").forEach(select=>{
    select.onchange=()=>{
     const i=+select.dataset.choice,parts=batchParts(target.value);
